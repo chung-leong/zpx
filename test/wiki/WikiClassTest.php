@@ -58,4 +58,11 @@ final class WikiClassTest extends ExtensionTestCase
         )
         OUTPUT, implode(PHP_EOL, $lines));
     }
+
+    public function testExports(): void
+    {
+        $lines = $this->runTest("class-export", "test.php");
+        echo implode(PHP_EOL, $lines), "\n";
+    }
+     
 }
