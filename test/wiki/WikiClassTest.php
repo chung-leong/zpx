@@ -111,6 +111,15 @@ final class WikiClassTest extends ExtensionTestCase
         OUTPUT, implode(PHP_EOL, $lines));
     }
 
+    public function testFluentMethods(): void
+    {
+        $lines = $this->runTest("class-instance-method-fluent", "test.php");
+        // $this->assertSame(<<<OUTPUT
+        // x = 123, y = 456
+        // OUTPUT, implode(PHP_EOL, $lines));
+        echo implode(PHP_EOL, $lines), "\n";
+    }
+
     public function testStaticMethod(): void
     {
         $lines = $this->runTest("class-static-method", "test.php");
