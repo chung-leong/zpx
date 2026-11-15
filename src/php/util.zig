@@ -278,17 +278,9 @@ pub fn freeAny(arg: anytype) void {
         },
         .optional => if (arg) |payload| freeAny(payload),
         .array => for (arg) |value| freeAny(value),
-        .@"struct" => |st| switch (T) {
+        .@"struct" => switch (T) {
             Value => arg.release(),
-            else => if (st.backing_integer == null) {
-                inline for (st.field_names, st.field_attrs) |field_name, field_attrs| {
-                    // attempt to free value only if it's does not match the field's default value
-                    if (!field_attrs.@"comptime" and !fieldHasDefaultValue(arg, field_name)) {
-                        const value = @field(arg, field_name);
-                        freeAny(value);
-                    }
-                }
-            },
+            else => freeStructFields(arg, &.{}),
         },
         .@"union" => |un| switch (T) {
             Dictionary, List => arg.release(),
@@ -299,6 +291,25 @@ pub fn freeAny(arg: anytype) void {
             } else unsupported(T),
         },
         else => {},
+    }
+}
+
+pub fn freeStructFields(arg: anytype, comptime ignore_fields: []const std.meta.FieldEnum(@TypeOf(arg))) void {
+    const T = @TypeOf(arg);
+    if (@typeInfo(T) != .@"struct") @compileError("Struct type expected, received: " ++ @typeName(T));
+    const st = @typeInfo(T).@"struct";
+    if (st.backing_integer != null) return;
+    inline for (st.field_names, st.field_attrs, st.field_types) |field_name, field_attrs, FT| {
+        const FE = std.meta.FieldEnum(T);
+        if (comptime std.mem.indexOfScalar(FE, ignore_fields, @field(FE, field_name)) == null) {
+            if (!field_attrs.@"comptime" and autoFreeable(FT)) {
+                // attempt to free value only if it's does not match the field's default value
+                if (!fieldHasDefaultValue(arg, field_name)) {
+                    const value = @field(arg, field_name);
+                    freeAny(value);
+                }
+            }
+        }
     }
 }
 

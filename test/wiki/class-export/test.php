@@ -1,16 +1,15 @@
 <?php
 
-use somewhere\out\there\MyClass;
-use somewhere\out\there\MyClass\Child;
-use somewhere\out\there\MyClass\Child\Pet;
+use somewhere\out\there\ThatClass;
+use somewhere\out\there\ThatClass\Child;
+use somewhere\out\there\ThatClass\Child\Pet;
 
-print_r(new MyClass);
+print_r(new ThatClass);
 print_r(new Child);
 print_r(Pet::cat);
 
+var_dump(ThatClass::Child);
+var_dump(ThatClass::Child::Pet);
 
-var_dump(MyClass::Child);
-var_dump(MyClass::Child::Pet);
-
-print_r(new (MyClass::Child));
-print_r(MyClass::Child::Pet::dog);
+print_r(new (ThatClass::Child));
+print_r(ThatClass::Child::Pet::dog);

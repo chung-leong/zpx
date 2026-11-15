@@ -59,10 +59,75 @@ final class WikiClassTest extends ExtensionTestCase
         OUTPUT, implode(PHP_EOL, $lines));
     }
 
+    public function testObjectDeinit(): void
+    {
+        $lines = $this->runTest("class-object-deinit", "test.php");
+        $this->assertSame(<<<OUTPUT
+        deinit
+        OUTPUT, implode(PHP_EOL, $lines));
+    }
+
+    public function testObjectAutoDeinit(): void
+    {
+        $lines = $this->runTest("class-object-deinit-auto", "test.php");
+        $this->assertSame(<<<OUTPUT
+        Example Object
+        (
+            [text] => Default text
+        )
+        Example Object
+        (
+            [text] => Hello world
+        )
+        OUTPUT, implode(PHP_EOL, $lines));
+    }
+
+    public function testObjectSemiautoDeinit(): void
+    {
+        $lines = $this->runTest("class-object-deinit-ignore", "test.php");
+        $this->assertSame(<<<OUTPUT
+        Example Object
+        (
+            [integers] => Array
+                (
+                    [0] => 1
+                    [1] => 2
+                    [2] => 3
+                )
+
+            [floats] => Array
+                (
+                )
+
+        )
+        OUTPUT, implode(PHP_EOL, $lines));
+    }
+
     public function testExports(): void
     {
         $lines = $this->runTest("class-export", "test.php");
-        echo implode(PHP_EOL, $lines), "\n";
+        $this->assertSame(<<<OUTPUT
+        somewhere\\out\\there\\ThatClass Object
+        (
+        )
+        somewhere\\out\\there\\ThatClass\\Child Object
+        (
+        )
+        somewhere\\out\\there\\ThatClass\\Child\\Pet Enum:int
+        (
+            [name] => cat
+            [value] => 0
+        )
+        string(35) "somewhere\\out\\there\\ThatClass\\Child"
+        string(39) "somewhere\\out\\there\\ThatClass\\Child\\Pet"
+        somewhere\\out\\there\\ThatClass\\Child Object
+        (
+        )
+        somewhere\\out\\there\\ThatClass\\Child\\Pet Enum:int
+        (
+            [name] => dog
+            [value] => 1
+        )
+        OUTPUT, implode(PHP_EOL, $lines));
     }
-     
 }

@@ -162,11 +162,7 @@ pub fn _(comptime T: type) type {
             const self: *@This() = @ptrCast(@alignCast(obj));
             switch (deinit_fn.exists) {
                 true => T.deinit(self.custom()),
-                false => {
-                    if (comptime php.util.autoFreeable(T)) {
-                        php.util.freeAny(self.custom_struct);
-                    }
-                },
+                false => php.util.freeStructFields(self.custom_struct, &.{}),
             }
         }
 
