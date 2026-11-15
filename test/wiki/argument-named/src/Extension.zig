@@ -1,17 +1,12 @@
 const php = @import("php/root.zig");
-const getter = php.IniEntry.getter;
-const setter = php.IniEntry.setter;
 
-pub const @"export CONSTANT" = "Hello world";
-pub const @"export Enum" = php.Enum.Custom(enum { hello, world });
-
-pub fn @"call greet"(self: *@This(), args: struct {
+pub fn @"call show_options"(_: *@This(), args: struct {
     name: []const u8,
+    options: struct {
+        param_a: bool = false,
+        param_b: i32 = 0,
+        param_c: enum { good, bad, ugly } = .good,
+    } = .{},
 }) !void {
-    php.print("{s}, {s}!\n", .{ self.greeting, args.name });
+    php.print("options = {}\n", .{args.options});
 }
-
-pub const @"get greeting" = getter(@This(), .greeting);
-pub const @"set greeting" = setter(@This(), .greeting);
-
-greeting: [:0]const u8 = "Hello",

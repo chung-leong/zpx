@@ -120,6 +120,17 @@ final class WikiArgumentTest extends ExtensionTestCase
         OUTPUT, implode(PHP_EOL, $lines));
     }
 
+    public function testNamedArguments(): void
+    {
+        $lines = $this->runTest("argument-named", "test.php");
+        $this->assertSame(<<<OUTPUT
+        options = .{ .param_a = false, .param_b = 0, .param_c = .good }
+        options = .{ .param_a = true, .param_b = 0, .param_c = .good }
+        options = .{ .param_a = false, .param_b = 123, .param_c = .ugly }
+        options = .{ .param_a = false, .param_b = 123, .param_c = .ugly }
+        OUTPUT, implode(PHP_EOL, $lines));
+    }
+
     public function testByRefArgument(): void
     {
         $lines = $this->runTest("argument-reference", "test.php");
