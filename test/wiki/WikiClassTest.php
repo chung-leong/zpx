@@ -59,6 +59,40 @@ final class WikiClassTest extends ExtensionTestCase
         OUTPUT, implode(PHP_EOL, $lines));
     }
 
+    public function testObjectInit(): void
+    {
+        $lines = $this->runTest("class-object-init", "test.php");
+        $this->assertSame(<<<OUTPUT
+        init
+        OUTPUT, implode(PHP_EOL, $lines));
+    }
+
+    public function testObjectInitSelf(): void
+    {
+        $lines = $this->runTest("class-object-init-self", "test.php");
+        $this->assertSame(<<<OUTPUT
+        initSelf
+        OUTPUT, implode(PHP_EOL, $lines));
+    }
+
+    public function testObjectAutoInit(): void
+    {
+        $lines = $this->runTest("class-object-init-auto", "test.php");
+        $this->assertSame(<<<OUTPUT
+        Example Object
+        (
+            [number1] => 123
+            [number2] => 456
+        )
+        OUTPUT, implode(PHP_EOL, $lines));
+    }
+
+    public function testObjectIllegalInit(): void
+    {
+        $lines = $this->runTest("class-object-init-illegal", "test.php");
+        $this->assertStringContainsString("not permitted", implode(PHP_EOL, $lines));
+    }
+
     public function testObjectDeinit(): void
     {
         $lines = $this->runTest("class-object-deinit", "test.php");

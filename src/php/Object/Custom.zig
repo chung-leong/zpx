@@ -744,7 +744,7 @@ pub fn _(comptime T: type) type {
                 const arg_count = php.util.argCount(InitSelf);
                 const Arg0 = switch (arg_count) {
                     1 => struct {},
-                    2 => php.util.ArgType(InitSelf, 0),
+                    2 => php.util.ArgType(InitSelf, 1),
                     else => unreachable,
                 };
                 break :init .{ .exists = true, .Args = Arg0, .uses_args = arg_count > 1, .by_value = false };
