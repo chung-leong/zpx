@@ -103,6 +103,36 @@ final class WikiClassTest extends ExtensionTestCase
         OUTPUT, implode(PHP_EOL, $lines));
     }
 
+    public function testInstanceMethod(): void
+    {
+        $lines = $this->runTest("class-instance-method", "test.php");
+        $this->assertSame(<<<OUTPUT
+        x = 123, y = 456
+        OUTPUT, implode(PHP_EOL, $lines));
+    }
+
+    public function testStaticMethod(): void
+    {
+        $lines = $this->runTest("class-static-method", "test.php");
+        $this->assertSame(<<<OUTPUT
+        Point Object
+        (
+            [x] => 10
+            [y] => 10
+        )
+        Point Object
+        (
+            [x] => 15
+            [y] => 15
+        )
+        Point Object
+        (
+            [x] => 20
+            [y] => 20
+        )
+        OUTPUT, implode(PHP_EOL, $lines));
+    }
+
     public function testExports(): void
     {
         $lines = $this->runTest("class-export", "test.php");
