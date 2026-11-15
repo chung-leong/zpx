@@ -142,6 +142,14 @@ final class WikiClassTest extends ExtensionTestCase
         OUTPUT, implode(PHP_EOL, $lines));
     }
 
+    public function testStaticObjectInitialization(): void
+    {
+        $lines = $this->runTest("class-static-method-self-init", "test.php");
+        $this->assertSame(<<<OUTPUT
+        Molly the cat: meow meow
+        OUTPUT, implode(PHP_EOL, $lines));
+    }
+
     public function testExports(): void
     {
         $lines = $this->runTest("class-export", "test.php");
