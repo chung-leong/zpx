@@ -413,7 +413,7 @@ foreach ($settings->versions as $version) {
         $debug = ($settings->debug) ? 'with debug enabled ' : '';
         echo "Building extension at optimization level \"$settings->optimize\" for PHP $version $debug($platform/$arch$ts)\n";
         $devel_path = join(DIRECTORY_SEPARATOR, [ __DIR__, 'php-devel', $version ]);
-        if (!file_exists($devel_path)) {
+        if (!file_exists($devel_path . DIRECTORY_SEPARATOR . "include")) {
             if (count($links) === 0) {
                 $dir_url = "https://downloads.php.net/~windows/releases/";
                 $dir_contents = file_get_contents($dir_url);

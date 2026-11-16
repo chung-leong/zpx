@@ -6,8 +6,9 @@
         "phpunit/phpunit": "^10"
     },
     "autoload": {
-        "classmap": [
-            "test/"
+        "exclude-from-classmap": [
+            "/test/**/vendor",
+            "/examples/**/vendor"
         ]
     },
     "scripts": {

@@ -239,6 +239,7 @@ pub var zend_std_read_property: Ptr("zend_std_read_property") = undefined;
 pub var zend_str_tolower: Ptr("zend_str_tolower") = undefined;
 pub var zend_string_init_interned: Ptr("zend_string_init_interned") = undefined;
 pub var zend_string_tolower_ex: Ptr("zend_string_tolower_ex") = undefined;
+pub var zend_strtod: Ptr("zend_strtod") = undefined;
 pub var zend_throw_exception_ex: Ptr("zend_throw_exception_ex") = undefined;
 pub var zend_throw_exception_object: Ptr("zend_throw_exception_object") = undefined;
 pub var zend_trace_to_string: Ptr("zend_trace_to_string") = undefined;
