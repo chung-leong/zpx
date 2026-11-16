@@ -111,6 +111,72 @@ final class WikiReturnValueTest extends ExtensionTestCase
         }
     }
 
+    public function testCustomObjectReturnValue(): void
+    {
+        $lines = $this->runTest("retval-custom-object", "test.php");
+        $this->assertSame(<<<OUTPUT
+        opaque_ptr = 0xDEADBEEF
+        OUTPUT, implode(PHP_EOL, $lines));
+    }
+
+    public function testCustomObjectArrayReturnValue(): void
+    {
+        $lines = $this->runTest("retval-custom-object-array", "test.php");
+        $this->assertSame(<<<OUTPUT
+        Array
+        (
+            [0] => Point Object
+                (
+                    [x] => 0
+                    [y] => 0
+                )
+
+            [1] => Point Object
+                (
+                    [x] => 1
+                    [y] => 1
+                )
+
+            [2] => Point Object
+                (
+                    [x] => 2
+                    [y] => 2
+                )
+
+            [3] => Point Object
+                (
+                    [x] => 3
+                    [y] => 3
+                )
+
+            [4] => Point Object
+                (
+                    [x] => 4
+                    [y] => 4
+                )
+
+        )
+        OUTPUT, implode(PHP_EOL, $lines));
+    }
+
+    public function testCustomObjectPointerReturnValue(): void
+    {
+        $lines = $this->runTest("retval-custom-object-preexisting", "test.php");
+        $this->assertSame(<<<OUTPUT
+        Point Object
+        (
+            [x] => 0
+            [y] => 0
+        )
+        Point Object
+        (
+            [x] => 4
+            [y] => 4
+        )
+        OUTPUT, implode(PHP_EOL, $lines));
+        echo implode(PHP_EOL, $lines), "\n";
+    }
+
     public function testTupleReturnValue(): void
     {
         $lines = $this->runTest("retval-tuple", "test.php");

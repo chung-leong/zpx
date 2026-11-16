@@ -1,18 +1,18 @@
 const php = @import("php/root.zig");
 
-const Something = struct {
+const Example = struct {
     opaque_ptr: *anyopaque,
 };
-pub const @"export Something" = php.Class.Custom(Something);
+pub const @"export Example" = php.Class.Custom(Example);
 
-pub fn @"call create"(_: *@This()) !Something {
+pub fn @"call create"(_: *@This()) !Example {
     return .{ .opaque_ptr = @ptrFromInt(0xDEADBEEF) };
 }
 
 pub fn @"call receive"(_: *@This(), args: struct {
-    something: *Something,
+    object: *Example,
 }) void {
     php.print("opaque_ptr = 0x{X}\n", .{
-        @intFromPtr(args.something.opaque_ptr),
+        @intFromPtr(args.object.opaque_ptr),
     });
 }
