@@ -177,20 +177,21 @@ pub fn _(comptime T: type, comptime options: struct {
             inline for (getter_names, 0..) |getter_name, index| {
                 const getter = @field(getters, getter_name);
                 const setter, const kind: IniEntry.Kind = comptime for (setter_names) |setter_name| {
-                    if (std.mem.startsWith(u8, setter_name, getter_name)) {
-                        if (setter_name.len == getter_name.len) {
-                            break .{ @field(setters, setter_name), .all };
-                        } else if (setter_name[getter_name.len] == ' ') {
-                            const suffix = setter_name[getter_name.len + 1 ..];
-                            const kind: IniEntry.Kind = for (std.meta.fieldNames(IniEntry.Kind)) |kind_name| {
-                                if (std.mem.eql(u8, suffix, "(" ++ kind_name ++ ")")) {
-                                    break @field(IniEntry.Kind, kind_name);
-                                }
-                            } else @compileError("Not a valid ini field suffix: " ++ suffix);
-                            break .{ @field(setters, setter_name), kind };
-                        }
+                    // first, look for setter with (...) after its name
+                    if (std.mem.startsWith(u8, setter_name, getter_name ++ " ")) {
+                        const suffix = setter_name[getter_name.len + 1 ..];
+                        const kind: IniEntry.Kind = for (std.meta.fieldNames(IniEntry.Kind)) |kind_name| {
+                            if (std.mem.eql(u8, suffix, "(" ++ kind_name ++ ")")) {
+                                break @field(IniEntry.Kind, kind_name);
+                            }
+                        } else @compileError("Not a valid ini field suffix: " ++ suffix);
+                        break .{ @field(setters, setter_name), kind };
                     }
-                } else @compileError("Missing setter: " ++ getter_name);
+                } else switch (@hasField(@TypeOf(setters), getter_name)) {
+                    // use entry with the same as as the getter
+                    true => .{ @field(setters, getter_name), .all },
+                    false => @compileError("Missing setter: " ++ getter_name),
+                };
                 const updater = struct {
                     pub fn onModify(_: *IniEntry, text: *String) !void {
                         const container = Singleton(T).get();

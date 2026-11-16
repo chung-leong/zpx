@@ -58,7 +58,7 @@ pub fn SetterExporter(comptime T: type, comptime scope: Scope, comptime purpose:
     };
     if (!user_auto_setters) return DefinedSetterExtractor;
     const defined = DefinedSetterExtractor.get();
-    // return struct type that adds auto-getters
+    // return struct type that adds auto-setters
     return GetterSetterGenerator(T, scope, defined, switch (purpose) {
         .module => IniEntry.setter,
         .object => Object.setter,

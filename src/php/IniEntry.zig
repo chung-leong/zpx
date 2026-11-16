@@ -34,7 +34,7 @@ pub fn getter(comptime T: type, comptime field: std.meta.FieldEnum(T)) RT: {
     return ns._;
 }
 /// Utility function for creating property setters for a custom module.
-pub fn setter(comptime T: type, field: std.meta.FieldEnum(T)) RT: {
+pub fn setter(comptime T: type, comptime field: std.meta.FieldEnum(T)) RT: {
     const field_name = @tagName(field);
     const FT = @FieldType(T, field_name);
     break :RT fn (*T, FT) void;
