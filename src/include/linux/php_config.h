@@ -1,6 +1,7 @@
 #ifndef PHP_CONFIG_H
 #define PHP_CONFIG_H
 #define _GNU_SOURCE
+#include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
 #include <dirent.h>
@@ -29,6 +30,11 @@
 // the use of _Atomic() causes structs to be demoted to opaque by Translate-C
 // hence the need to keep the header from being included
 #define ZEND_ATOMIC_H
+#define ZEND_ATOMIC_LOAD_ACQUIRE_32(ptr) zend_atomic_load_acquire_32(ptr)
+static __attribute__((always_inline)) uint32_t zend_atomic_load_acquire_32(const uint32_t *ptr)
+{
+	return __atomic_load_n(ptr, __ATOMIC_ACQUIRE);
+}
 
 // Neon header file causes translate-c to segfault
 #undef _M_ARM64

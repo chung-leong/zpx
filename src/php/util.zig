@@ -302,7 +302,7 @@ pub fn freeStructFields(arg: anytype, comptime ignore_fields: []const std.meta.F
     inline for (st.field_names, st.field_attrs, st.field_types) |field_name, field_attrs, FT| {
         const FE = std.meta.FieldEnum(T);
         if (comptime std.mem.indexOfScalar(FE, ignore_fields, @field(FE, field_name)) == null) {
-            if (!field_attrs.@"comptime" and autoFreeable(FT)) {
+            if (!field_attrs.@"comptime" and comptime autoFreeable(FT)) {
                 // attempt to free value only if it's does not match the field's default value
                 if (!fieldHasDefaultValue(arg, field_name)) {
                     const value = @field(arg, field_name);

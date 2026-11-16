@@ -148,10 +148,9 @@ final class WikiClassTest extends ExtensionTestCase
     public function testFluentMethods(): void
     {
         $lines = $this->runTest("class-instance-method-fluent", "test.php");
-        // $this->assertSame(<<<OUTPUT
-        // x = 123, y = 456
-        // OUTPUT, implode(PHP_EOL, $lines));
-        echo implode(PHP_EOL, $lines), "\n";
+        $this->assertSame(<<<OUTPUT
+        x = 12, y = 12
+        OUTPUT, implode(PHP_EOL, $lines));
     }
 
     public function testStaticMethod(): void
@@ -187,28 +186,48 @@ final class WikiClassTest extends ExtensionTestCase
     public function testExports(): void
     {
         $lines = $this->runTest("class-export", "test.php");
-        $this->assertSame(<<<OUTPUT
-        somewhere\\out\\there\\ThatClass Object
-        (
-        )
-        somewhere\\out\\there\\ThatClass\\Child Object
-        (
-        )
-        somewhere\\out\\there\\ThatClass\\Child\\Pet Enum:int
-        (
-            [name] => cat
-            [value] => 0
-        )
-        string(35) "somewhere\\out\\there\\ThatClass\\Child"
-        string(39) "somewhere\\out\\there\\ThatClass\\Child\\Pet"
-        somewhere\\out\\there\\ThatClass\\Child Object
-        (
-        )
-        somewhere\\out\\there\\ThatClass\\Child\\Pet Enum:int
-        (
-            [name] => dog
-            [value] => 1
-        )
-        OUTPUT, implode(PHP_EOL, $lines));
+        if (PHP_MAJOR_VERSION > 8 or PHP_MINOR_VERSION >= 3) {
+            $this->assertSame(<<<OUTPUT
+            somewhere\\out\\there\\ThatClass Object
+            (
+            )
+            somewhere\\out\\there\\ThatClass\\Child Object
+            (
+            )
+            somewhere\\out\\there\\ThatClass\\Child\\Pet Enum:int
+            (
+                [name] => cat
+                [value] => 0
+            )
+            string(35) "somewhere\\out\\there\\ThatClass\\Child"
+            string(39) "somewhere\\out\\there\\ThatClass\\Child\\Pet"
+            somewhere\\out\\there\\ThatClass\\Child Object
+            (
+            )
+            somewhere\\out\\there\\ThatClass\\Child\\Pet Enum:int
+            (
+                [name] => dog
+                [value] => 1
+            )
+            OUTPUT, implode(PHP_EOL, $lines));
+        } else {
+            $this->assertSame(<<<OUTPUT
+            somewhere\\out\\there\\ThatClass Object
+            somewhere\\out\\there\\ThatClass\\Child Object
+            somewhere\\out\\there\\ThatClass\\Child\\Pet Enum:int
+            (
+                [name] => cat
+                [value] => 0
+            )
+            string(35) "somewhere\\out\\there\\ThatClass\\Child"
+            string(39) "somewhere\\out\\there\\ThatClass\\Child\\Pet"
+            somewhere\\out\\there\\ThatClass\\Child Object
+            somewhere\\out\\there\\ThatClass\\Child\\Pet Enum:int
+            (
+                [name] => dog
+                [value] => 1
+            )
+            OUTPUT, implode(PHP_EOL, $lines));
+        }
     }
 }

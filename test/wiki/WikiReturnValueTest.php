@@ -174,7 +174,6 @@ final class WikiReturnValueTest extends ExtensionTestCase
             [y] => 4
         )
         OUTPUT, implode(PHP_EOL, $lines));
-        echo implode(PHP_EOL, $lines), "\n";
     }
 
     public function testTupleReturnValue(): void
