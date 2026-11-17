@@ -4,6 +4,7 @@ const zstd = @import("zstd");
 
 const php = @import("php/root.zig");
 
+pub const @"export zstd\\Strategy" = php.Enum.Custom(zstd.Strategy);
 pub const @"export zstd\\Compressor" = php.Class.Custom(@import("Compressor.zig"));
 pub const @"export zstd\\Decompressor" = php.Class.Custom(@import("Decompressor.zig"));
 

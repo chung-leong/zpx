@@ -39,5 +39,69 @@ final class ZstdTest extends ExtensionTestCase
         combined = 100124
         complete == combined => 1
         OUTPUT, implode(PHP_EOL, $lines));
-    }   
+    }
+
+    public function testStrategyCases(): void
+    {
+        $lines = $this->runTest("zstd", "cases.php");
+        $this->assertSame(<<<OUTPUT
+        Array
+        (
+            [0] => zstd\Strategy Enum:int
+                (
+                    [name] => fast
+                    [value] => 1
+                )
+
+            [1] => zstd\Strategy Enum:int
+                (
+                    [name] => dfast
+                    [value] => 2
+                )
+
+            [2] => zstd\Strategy Enum:int
+                (
+                    [name] => greedy
+                    [value] => 3
+                )
+
+            [3] => zstd\Strategy Enum:int
+                (
+                    [name] => lazy
+                    [value] => 4
+                )
+
+            [4] => zstd\Strategy Enum:int
+                (
+                    [name] => lazy2
+                    [value] => 5
+                )
+
+            [5] => zstd\Strategy Enum:int
+                (
+                    [name] => btlazy2
+                    [value] => 6
+                )
+
+            [6] => zstd\Strategy Enum:int
+                (
+                    [name] => btopt
+                    [value] => 7
+                )
+
+            [7] => zstd\Strategy Enum:int
+                (
+                    [name] => btultra
+                    [value] => 8
+                )
+
+            [8] => zstd\Strategy Enum:int
+                (
+                    [name] => btultra2
+                    [value] => 9
+                )
+
+        )
+        OUTPUT, implode(PHP_EOL, $lines));
+    }
 }

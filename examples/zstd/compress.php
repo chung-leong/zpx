@@ -1,6 +1,10 @@
 <?php
 
-$compressed = zstd\compress(<<<INPUT
+use zstd\Strategy;
+use function zstd\compress;
+use function zstd\decompress;
+
+$compressed = compress(<<<INPUT
     To-morrow, and to-morrow, and to-morrow,
     Creeps in this petty pace from day to day,
     To the last syllable of recorded time;
@@ -11,6 +15,6 @@ $compressed = zstd\compress(<<<INPUT
     And then is heard no more. It is a tale
     Told by an idiot, full of sound and fury,
     Signifying nothing.
-INPUT);
-$decompressed = zstd\decompress($compressed);
+INPUT, strategy: Strategy::btultra);
+$decompressed = decompress($compressed);
 echo $decompressed;
