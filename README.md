@@ -15,9 +15,7 @@ Windows PC.
 The goal of the project is to enable everyday PHP programmers to create custom extensions in a
 matter of hours.
 
-ZPX is designed for Zig 0.17.0+ and supports PHP 8.1 through 8.6.
-
-Version 0.17.1 is being prepared right now. It'll be released in the coming days.
+ZPX v0.17.1 is designed for Zig 0.17.0+. It supports PHP 8.1 through 8.6.
 
 ## Getting started
 
