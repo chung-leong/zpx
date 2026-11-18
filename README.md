@@ -80,7 +80,7 @@ var module: php.Module.Custom(@import("Extension.zig"), .{
     .version = config.ext_version,
 }) = .init();
 comptime {
-    module.register();
+    module.@"export"();
 }
 
 pub fn DllMain(
@@ -104,7 +104,7 @@ const getter = php.IniEntry.getter;
 const setter = php.IniEntry.setter;
 
 pub const @"export CONSTANT" = "Hello world";
-pub const @"export Enum" = enum { hello, world };
+pub const @"export Enum" = php.Enum.Custom(enum { hello, world });
 
 pub fn @"call greet"(self: *@This(), args: struct {
     name: []const u8,
