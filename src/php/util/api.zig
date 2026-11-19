@@ -68,6 +68,10 @@ pub const object_prototypes = .{
 pub const class_prototypes = .{
     .getStaticMethod = fn (anytype, *String) ?*const Function,
 };
+/// Function prototypes of enum handlers. Though not depicted as such, all functions can in fact return errors.
+pub const enum_prototypes = .{
+    .getStaticMethod = fn (anytype, *String) ?*const Function,
+};
 /// Scan through declared functions whose names start with "static " to find the static self pointer.
 pub fn FindStatic(comptime T: type) type {
     var S: ?type = null;
@@ -144,32 +148,13 @@ pub fn Validator(comptime T: type, comptime kind: Validation, comptime options: 
             try checkGetters();
             try checkSetters();
             try checkMethods();
-            switch (kind) {
-                .module => {
-                    try checkHandlers(module_prototypes);
-                },
-                .class => {
-                    try checkHandlers(object_prototypes);
-                    try checkStaticGetters();
-                    try checkStaticSetters();
-                    try checkStaticMethods();
-                    try checkStaticHandlers(class_prototypes);
-
-                    if (@hasDecl(T, "initSelf")) {
-                        try checkInitSelf();
-                    } else if (@hasDecl(T, "init")) {
-                        try checkInit();
-                    }
-                    if (@hasDecl(T, "deinit")) {
-                        try checkDeinit();
-                    }
-                },
-                .@"enum" => {
-                    try checkStaticGetters();
-                    try checkStaticSetters();
-                    try checkStaticMethods();
-                },
-            }
+            try checkHandlers();
+            try checkStaticGetters();
+            try checkStaticSetters();
+            try checkStaticMethods();
+            try checkStaticHandlers();
+            try checkInit();
+            try checkDeinit();
         }
 
         fn checkContainer() !void {
@@ -273,8 +258,13 @@ pub fn Validator(comptime T: type, comptime kind: Validation, comptime options: 
             }
         }
 
-        fn checkHandlers(comptime prototypes: anytype) !void {
+        fn checkHandlers() !void {
             @setEvalBranchQuota(2000000);
+            const prototypes = switch (kind) {
+                .module => module_prototypes,
+                .class => object_prototypes,
+                .@"enum" => .{},
+            };
             for (std.meta.declarations(T)) |decl_name| {
                 const MP = @TypeOf(prototypes);
                 if (@hasField(MP, decl_name)) {
@@ -360,8 +350,13 @@ pub fn Validator(comptime T: type, comptime kind: Validation, comptime options: 
             }
         }
 
-        fn checkStaticHandlers(comptime prototypes: anytype) !void {
+        fn checkStaticHandlers() !void {
             @setEvalBranchQuota(2000000);
+            const prototypes = switch (kind) {
+                .module => .{},
+                .class => class_prototypes,
+                .@"enum" => enum_prototypes,
+            };
             const S = FindStatic(T);
             for (std.meta.declarations(T)) |decl_name| {
                 const MP = @TypeOf(prototypes);
@@ -378,52 +373,73 @@ pub fn Validator(comptime T: type, comptime kind: Validation, comptime options: 
             }
         }
 
-        fn checkInitSelf() !void {
-            const InitSelf = @TypeOf(T.initSelf);
-            const arg_count = argCount(InitSelf);
-            const Arg0 = switch (arg_count) {
-                1 => struct {},
-                2 => php.util.ArgType(InitSelf, 1),
-                else => void,
-            };
-            if (@typeInfo(Arg0) != .@"struct") {
-                report("initSelf() should accept a single struct as its sole argument");
-                return error.InvalidInitArgument;
-            }
-        }
-
         fn checkInit() !void {
-            const Init = @TypeOf(T.init);
-            const arg_count = argCount(Init);
-            const Arg0 = switch (arg_count) {
-                0 => struct {},
-                1 => ArgType(Init, 0),
-                else => void,
-            };
-            if (@typeInfo(Arg0) != .@"struct") {
-                report("init() should accept a single struct as its sole argument");
-                return error.InvalidInitArgument;
+            switch (kind) {
+                .class => {
+                    if (@hasDecl(T, "initSelf")) {
+                        const InitSelf = @TypeOf(T.initSelf);
+                        const arg_count = argCount(InitSelf);
+                        const Arg1 = switch (arg_count) {
+                            1 => struct {},
+                            2 => php.util.ArgType(InitSelf, 1),
+                            else => void,
+                        };
+                        if (@typeInfo(Arg1) != .@"struct") {
+                            report("initSelf() should accept a struct as its second argument");
+                            return error.InvalidInitArgument;
+                        }
+                        try checkSelf(T, php.util.ArgType(InitSelf, 0));
+                        if (comptime WithoutError(ReturnType(InitSelf)) != void) {
+                            report("initSelf() should return void");
+                            return error.InvalidInitSelfReturnValue;
+                        }
+                    } else if (@hasDecl(T, "init")) {
+                        const Init = @TypeOf(T.init);
+                        const arg_count = argCount(Init);
+                        const Arg0 = switch (arg_count) {
+                            0 => struct {},
+                            1 => ArgType(Init, 0),
+                            else => void,
+                        };
+                        if (@typeInfo(Arg0) != .@"struct") {
+                            report("init() should accept a struct as its sole argument");
+                            return error.InvalidInitArgument;
+                        }
+                        if (comptime WithoutError(ReturnType(Init)) != T) {
+                            report("init() should return @This()");
+                            return error.InvalidInitReturnValue;
+                        }
+                    }
+                },
+                else => {},
             }
         }
 
         fn checkDeinit() !void {
-            const Deinit = @TypeOf(T.deinit);
-            const arg_count = argCount(Deinit);
-            const Arg0 = switch (arg_count) {
-                0 => void,
-                else => ArgType(Deinit, 0),
-            };
-            if (@typeInfo(Arg0) != .pointer or @typeInfo(Arg0).pointer.child != T) {
-                report("deinit() should accept a self pointer");
-                return error.InvalidDeinitArgument;
-            }
-            if (arg_count > 1) {
-                report("deinit() should accept no argument");
-                return error.InvalidDeinitArgument;
-            }
-            if (ReturnType(Deinit) != void) {
-                report("deinit() should return void");
-                return error.InvalidDeinitReturnValue;
+            switch (kind) {
+                .class => {
+                    if (@hasDecl(T, "deinit")) {
+                        const Deinit = @TypeOf(T.deinit);
+                        const arg_count = argCount(Deinit);
+                        const Arg0 = switch (arg_count) {
+                            0 => void,
+                            else => ArgType(Deinit, 0),
+                        };
+                        if (@typeInfo(Arg0) != .pointer or @typeInfo(Arg0).pointer.child != T) {
+                            report("deinit() should accept a self pointer");
+                            return error.InvalidDeinitArgument;
+                        }
+                        if (arg_count > 1) {
+                            report("deinit() should accept no argument");
+                            return error.InvalidDeinitArgument;
+                        }
+                        if (comptime ReturnType(Deinit) != void) {
+                            report("deinit() should return void");
+                            return error.InvalidDeinitReturnValue;
+                        }
+                    }
+                },
+                else => {},
             }
         }
 
