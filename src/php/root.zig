@@ -27,6 +27,7 @@ pub const IniEntry = @import("IniEntry.zig");
 pub const List = @import("List.zig")._;
 pub const Module = @import("Module.zig");
 pub const Object = @import("Object.zig");
+pub const Proxy = @import("Proxy.zig")._;
 pub const Reference = @import("Reference.zig");
 pub const Resource = @import("Resource.zig");
 pub const Singleton = @import("Singleton.zig")._;

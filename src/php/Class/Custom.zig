@@ -33,8 +33,16 @@ pub fn _(comptime T: type) type {
 
         pub fn get() *@This() {
             if (!status.registered) {
-                if (builtin.mode == .debug) std.debug.print("Class is not registered: {}\n", .{T});
-                unreachable;
+                if (@hasDecl(T, "use auto registration")) {
+                    const full_name = T.@"use auto registration";
+                    return register(full_name, null) catch {
+                        if (builtin.mode == .debug) std.debug.print("Class could not be registered: {}\n", .{T});
+                        unreachable;
+                    };
+                } else {
+                    if (builtin.mode == .debug) std.debug.print("Class is not registered: {}\n", .{T});
+                    unreachable;
+                }
             }
             return instance;
         }

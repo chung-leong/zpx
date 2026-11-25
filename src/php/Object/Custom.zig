@@ -21,7 +21,7 @@ const WithoutError = php.util.WithoutError;
 const errable = php.util.errable;
 
 pub fn _(comptime T: type) type {
-    if (!comptime php.util.api.canBeCustomClass(T)) return struct {};
+    // if (!comptime php.util.api.canBeCustomClass(T)) return struct {};
     const st = @typeInfo(T).@"struct";
     const has_required_fields = inline for (st.field_attrs) |field_attrs| {
         if (field_attrs.default_value_ptr == null) break true;

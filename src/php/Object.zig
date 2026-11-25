@@ -16,6 +16,7 @@ const deref = php.deref;
 const Class = php.Class;
 const failure = php.failure;
 const unsupported = failure.unsupported;
+const Proxy = php.Proxy;
 const Function = php.Function;
 const String = php.String;
 const Value = php.Value;
@@ -226,6 +227,9 @@ pub fn isCustom(self: *const @This(), comptime T: type) bool {
 ///
 /// This function simply shifts `self` pointer forward by a certain number of bytes.
 pub fn custom(self: *const @This(), comptime T: type) *T {
+    if (std.mem.startsWith(u8, @typeName(T), "array_list")) {
+        @compileError("DOH!");
+    }
     const custom_obj: *Custom(T) = @ptrCast(@constCast(self));
     return custom_obj.custom();
 }
@@ -282,6 +286,24 @@ pub fn setter(comptime T: type, comptime field: std.meta.FieldEnum(T)) RT: {
             } else {
                 @field(self, field_name) = value;
             }
+        }
+    };
+    return ns._;
+}
+/// Utility function for creating proxy getters for a custom object
+pub fn proxy(comptime T: type, comptime field: std.meta.FieldEnum(T)) fn (*T) *@This() {
+    const field_name = @tagName(field);
+    const FT = @FieldType(T, field_name);
+    const ns = struct {
+        fn _(self: *T) *Object {
+            const proxy_obj: *Proxy(FT) = .create();
+            const custom_ptr = proxy_obj.custom();
+            custom_ptr.* = .{
+                .source_object = Object.fromCustom(self).retain(),
+                .target = &@field(self, field_name),
+            };
+            proxy_obj.flags.initialized = true;
+            return proxy_obj.object().cede();
         }
     };
     return ns._;

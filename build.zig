@@ -39,7 +39,7 @@ pub fn build(b: *std.Build) !void {
                         const name = entry.key_ptr.*;
                         const info = switch (entry.value_ptr.*) {
                             .object => |obj| obj,
-                            else => |_, tag| {
+                            inline else => |_, tag| {
                                 std.debug.print("config entries are expected to be objects, found: {}", .{tag});
                                 return error.UnexpectedType;
                             },
@@ -113,7 +113,7 @@ pub fn build(b: *std.Build) !void {
                         }
                     }
                 },
-                else => |_, tag| {
+                inline else => |_, tag| {
                     std.debug.print("'config' is expected to be an object, found: {}", .{tag});
                     return error.UnexpectedType;
                 },
